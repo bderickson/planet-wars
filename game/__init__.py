@@ -1,0 +1,4 @@
+"""
+Planet Wars game package
+"""
+
