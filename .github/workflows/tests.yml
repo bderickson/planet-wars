@@ -65,29 +65,34 @@ jobs:
           pipenv install --dev
         # --dev installs both regular and development dependencies (pytest, etc.)
       
-      # Step 6: Run unit tests
+      # Step 6: Run unit tests with coverage
       - name: Run unit tests
+        env:
+          SDL_AUDIODRIVER: dummy
+          SDL_VIDEODRIVER: dummy
         run: |
-          pipenv run pytest tests/unit/ -v --tb=short
+          pipenv run pytest tests/unit/ -v --tb=short --cov=game --cov-report=term
         # -v = verbose output
         # --tb=short = shorter traceback on failures
+        # --cov=game measures code coverage while running tests (no re-run needed!)
+        # --cov-report=term prints coverage summary to console
         # This step will FAIL the workflow if any test fails
+        # SDL_AUDIODRIVER=dummy: Use fake audio device (no hardware needed)
+        # SDL_VIDEODRIVER=dummy: Use fake display (no screen needed)
       
-      # Step 7: Run integration tests
+      # Step 7: Run integration tests (append to coverage)
       - name: Run integration tests
+        env:
+          SDL_AUDIODRIVER: dummy
+          SDL_VIDEODRIVER: dummy
         run: |
-          pipenv run pytest tests/integration/ -v --tb=short
+          pipenv run pytest tests/integration/ -v --tb=short --cov=game --cov-append --cov-report=term --cov-report=xml
+        # --cov-append adds to existing coverage data from unit tests
+        # --cov-report=xml creates coverage.xml for upload
         # Separate step so you can see which test suite failed
+        # SDL dummy drivers allow pygame to run without hardware
       
-      # Step 8: Generate coverage report (optional)
-      - name: Run tests with coverage
-        run: |
-          pipenv run pytest --cov=game --cov-report=term --cov-report=xml
-        # --cov=game measures code coverage for game/ directory
-        # --cov-report=term prints to console
-        # --cov-report=xml creates coverage.xml for potential upload
-      
-      # Step 9: Upload coverage to GitHub (optional, stays for 90 days)
+      # Step 8: Upload coverage to GitHub (optional, stays for 90 days)
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         if: always()
