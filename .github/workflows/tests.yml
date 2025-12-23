@@ -91,17 +91,29 @@ jobs:
         # SDL_AUDIODRIVER=dummy: Use fake audio device (no hardware needed)
         # SDL_VIDEODRIVER=dummy: Use fake display (no screen needed)
       
-      # Step 7: Run integration tests (append to coverage)
-      - name: Run integration tests
-        env:
-          SDL_AUDIODRIVER: dummy
-          SDL_VIDEODRIVER: dummy
-        run: |
-          pipenv run pytest tests/integration/ -v --tb=short --cov=game --cov-append --cov-report=term --cov-report=xml
-        # --cov-append adds to existing coverage data from unit tests
-        # --cov-report=xml creates coverage.xml for upload
-        # Separate step so you can see which test suite failed
-        # SDL dummy drivers allow pygame to run without hardware
+    # Step 7: Run integration tests (append to coverage)
+    - name: Run integration tests
+      env:
+        SDL_AUDIODRIVER: dummy
+        SDL_VIDEODRIVER: dummy
+      run: |
+        pipenv run pytest tests/integration/ -v --tb=short --cov=game --cov-append --cov-report=term --cov-report=xml
+      # --cov-append adds to existing coverage data from unit tests
+      # --cov-report=xml creates coverage.xml for upload
+      # Separate step so you can see which test suite failed
+      # SDL dummy drivers allow pygame to run without hardware
+    
+    # Step 8: Upload coverage to Codecov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml
+        fail_ci_if_error: false
+        verbose: true
+      # Uploads coverage report to codecov.io
+      # Creates badge, PR comments, and detailed coverage reports
+      # fail_ci_if_error: false means workflow won't fail if upload fails
+      # verbose: true provides detailed logging for troubleshooting
       
       # Step 8: Upload coverage to GitHub (optional, stays for 90 days)
       - name: Upload coverage artifact
