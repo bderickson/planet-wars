@@ -107,10 +107,12 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
           verbose: true
         # Uploads coverage report to codecov.io
+        # token: GitHub secret containing Codecov upload token
         # Creates badge, PR comments, and detailed coverage reports
         # fail_ci_if_error: false means workflow won't fail if upload fails
         # verbose: true provides detailed logging for troubleshooting
