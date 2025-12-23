@@ -287,17 +287,32 @@ Common variables for `group:`:
 
 Your workflow now has:
 ```yaml
+on:
+  pull_request:
+    branches: [ "**" ]
+  push:
+    branches:
+      - main
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 ```
 
 **This means**:
-- ✅ Each branch/PR has independent concurrency
+- ✅ All PRs get tested (no matter which branch they target)
+- ✅ Direct pushes to main get tested (merges, hotfixes)
+- ✅ **No duplicate runs** for PR commits
 - ✅ Old runs cancelled when new commits pushed
-- ✅ Multiple branches can run simultaneously
-- ✅ Saves time and keeps results clear
-- ✅ Perfect for a test workflow!
+- ✅ Saves ~50% CI minutes compared to testing all pushes
+- ✅ Each branch/PR has independent concurrency
+- ✅ Multiple PRs can run simultaneously
+- ✅ Perfect for a PR-based workflow!
+
+**Why this works well**:
+- Feature branches always have PRs → tested via `pull_request` trigger
+- Main branch gets direct commits → tested via `push` trigger
+- Each commit tested exactly once (no waste!)
 
 ---
 

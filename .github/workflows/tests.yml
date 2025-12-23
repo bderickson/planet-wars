@@ -5,13 +5,16 @@ name: Tests
 
 # Triggers: When this workflow runs
 on:
-  # Run on every push to any branch
-  push:
-    branches: [ "**" ]
-  
-  # Run on every pull request to any branch
+  # Run on pull requests to any branch
+  # This tests code before it's merged
   pull_request:
     branches: [ "**" ]
+  
+  # Run on pushes to main branch only
+  # This tests direct commits/merges to main (deployments, hotfixes)
+  push:
+    branches:
+      - main
   
   # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
