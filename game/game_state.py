@@ -73,17 +73,17 @@ class GameState:
         Generate a vertically mirrored map based on size
         
         Args:
-            map_size: "small" (5 planets), "medium" (9 planets), or "large" (13 planets)
+            map_size: "small" (7 planets), "medium" (13 planets), or "large" (19 planets)
         """
         logger.info(f"Generating map: size={map_size}")
         
         # Determine number of planets
         planet_counts = {
-            "small": 5,
-            "medium": 9,
-            "large": 13
+            "small": 7,
+            "medium": 13,
+            "large": 19
         }
-        total_planets = planet_counts.get(map_size, 9)
+        total_planets = planet_counts.get(map_size, 13)
         logger.debug(f"Target planet count: {total_planets}")
         
         # Generate unique planet names upfront

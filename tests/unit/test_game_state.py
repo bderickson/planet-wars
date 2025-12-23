@@ -36,22 +36,22 @@ class TestGameStateInit:
         assert game.player_name == "TestPlayer"
     
     def test_init_with_map_size_small(self):
-        """Test initialization with small map"""
+        """Test initialization with small map (7 planets)"""
         game = GameState(1200, 900, map_size="small")
         # Map generation may not always succeed with all planets
         assert len(game.planets) >= 3  # At least some planets generated
     
     def test_init_with_map_size_medium(self):
-        """Test initialization with medium map"""
+        """Test initialization with medium map (13 planets)"""
         game = GameState(1600, 1200, map_size="medium")
         # Map generation may fail with small screens, use larger screen
-        assert len(game.planets) >= 3  # At least some planets generated
+        assert len(game.planets) >= 5  # At least some planets generated
     
     def test_init_with_map_size_large(self):
-        """Test initialization with large map"""
+        """Test initialization with large map (19 planets)"""
         game = GameState(2000, 1500, map_size="large")
         # Map generation may not always succeed with all planets
-        assert len(game.planets) >= 5  # At least some planets generated
+        assert len(game.planets) >= 7  # At least some planets generated
     
     def test_init_has_player_and_enemy_planets(self):
         """Test that map has player and enemy starting planets"""
@@ -573,7 +573,7 @@ class TestGameStateEdgeCases:
         assert len(game.planets) >= 1
     
     def test_very_large_screen(self):
-        """Test with very large screen"""
+        """Test with very large screen (19 planets for large)"""
         game = GameState(2000, 1500, map_size="large")
-        assert len(game.planets) == 13
+        assert len(game.planets) == 19
 

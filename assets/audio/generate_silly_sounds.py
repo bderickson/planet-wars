@@ -14,87 +14,137 @@ import io
 pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
 
 def generate_cartoon_victory():
-    """Generate a silly cartoon-style victory jingle"""
+    """Generate a VERY silly cartoon-style victory jingle with whoops and squeaks"""
     sample_rate = 22050
-    duration = 0.8
+    duration = 1.2
     
     num_samples = int(sample_rate * duration)
     arr = np.zeros(num_samples, dtype=np.int16)
     
-    # Silly ascending melody with vibrato
+    # Super silly ascending melody with exaggerated vibrato and slides
     notes = [
-        (392, 0.0, 0.15),    # G
-        (440, 0.15, 0.3),    # A
-        (494, 0.3, 0.45),    # B
-        (523, 0.45, 0.8),    # C (held)
+        (330, 0.0, 0.15),    # E (low silly start)
+        (392, 0.15, 0.3),    # G (slide up)
+        (494, 0.3, 0.45),    # B 
+        (587, 0.45, 0.6),    # D (higher!)
+        (784, 0.6, 1.2),     # G (very high, held with warble)
     ]
     
     for freq, start, end in notes:
         for i in range(num_samples):
             t = i / sample_rate
             if start <= t < end:
-                # Add cartoonish vibrato
-                vibrato = 1.0 + 0.05 * math.sin(2 * math.pi * 8 * t)
-                freq_with_vibrato = freq * vibrato
+                # EXTREME cartoonish vibrato and pitch wobble
+                vibrato = 1.0 + 0.15 * math.sin(2 * math.pi * 12 * t)  # More wobble!
                 
-                # Bouncy envelope
+                # Add pitch slide between notes
                 progress = (t - start) / (end - start)
-                envelope = 1.0 - (progress ** 0.5)
+                if progress < 0.3:  # Quick slide up at start of each note
+                    slide = 0.8 + 0.2 * (progress / 0.3)
+                else:
+                    slide = 1.0
                 
-                arr[i] += int(envelope * 15000 * math.sin(2 * math.pi * freq_with_vibrato * t))
+                freq_with_effects = freq * vibrato * slide
+                
+                # Bouncy envelope with "squeak" character
+                envelope = (1.0 - (progress ** 0.3)) * (0.9 + 0.1 * math.sin(30 * t))
+                
+                # Add harmonics for squeaky character
+                fundamental = math.sin(2 * math.pi * freq_with_effects * t)
+                harmonic2 = 0.3 * math.sin(2 * math.pi * freq_with_effects * 2 * t)
+                harmonic3 = 0.15 * math.sin(2 * math.pi * freq_with_effects * 3 * t)
+                
+                arr[i] += int(envelope * 18000 * (fundamental + harmonic2 + harmonic3))
+    
+    # Add silly "trill" at the end
+    for i in range(int(sample_rate * 0.8), num_samples):
+        t = i / sample_rate
+        trill_freq = 1000 + 200 * math.sin(2 * math.pi * 40 * t)
+        envelope = math.exp(-8 * (t - 0.8))
+        arr[i] += int(envelope * 8000 * math.sin(2 * math.pi * trill_freq * t))
     
     stereo_arr = np.column_stack((arr, arr))
     return pygame.sndarray.make_sound(stereo_arr)
 
 def generate_bonk():
-    """Generate a cartoon bonk/hit sound"""
+    """Generate an exaggerated cartoon BONK sound with comedic timing"""
     sample_rate = 22050
-    duration = 0.2
+    duration = 0.35
     
     num_samples = int(sample_rate * duration)
     arr = np.zeros(num_samples, dtype=np.int16)
     
-    # Short percussive hit with pitch drop
+    # Classic "BONK" - two-stage hit with pitch drop
     for i in range(num_samples):
         t = i / sample_rate
         progress = t / duration
         
-        # Rapidly descending frequency (bonk!)
-        freq = 400 - (350 * progress)
+        # Initial high impact, then "wobble" drop
+        if t < 0.05:
+            # Sharp high BONK
+            freq = 800 - (400 * (t / 0.05))
+            envelope = 1.0
+        else:
+            # Wobbly aftermath with "dizzy stars" effect
+            wobble = 20 * math.sin(2 * math.pi * 8 * t)
+            freq = 150 + wobble
+            envelope = math.exp(-12 * (t - 0.05))
         
-        # Sharp attack, quick decay
-        envelope = math.exp(-15 * t)
+        # Add metallic "clang" overtones
+        tone = math.sin(2 * math.pi * freq * t)
+        overtone1 = 0.4 * math.sin(2 * math.pi * freq * 2.3 * t)  # Inharmonic!
+        overtone2 = 0.2 * math.sin(2 * math.pi * freq * 3.7 * t)
         
-        # Add noise for impact
-        noise = np.random.randint(-5000, 5000) if i % 2 == 0 else 0
-        tone = 20000 * math.sin(2 * math.pi * freq * t)
+        # Add percussive noise for impact
+        noise_amount = math.exp(-40 * t)
+        noise = (np.random.randint(-3000, 3000) * noise_amount) if i % 3 == 0 else 0
         
-        arr[i] = int(envelope * (tone * 0.7 + noise * 0.3))
+        combined = envelope * (tone + overtone1 + overtone2) * 15000 + noise * 0.4
+        arr[i] = int(np.clip(combined, -32767, 32767))
     
     stereo_arr = np.column_stack((arr, arr))
     return pygame.sndarray.make_sound(stereo_arr)
 
 def generate_boing():
-    """Generate a spring/boing sound"""
+    """Generate an exaggerated rubber band / spring BOING sound"""
     sample_rate = 22050
-    duration = 0.4
+    duration = 0.6
     
     num_samples = int(sample_rate * duration)
     arr = np.zeros(num_samples, dtype=np.int16)
     
-    # Spring effect - oscillating frequency
+    # Mega-spring effect - wild oscillating frequency
     for i in range(num_samples):
         t = i / sample_rate
         progress = t / duration
         
-        # Base frequency with dampened oscillation
-        oscillation = 150 * math.sin(2 * math.pi * 15 * t) * math.exp(-4 * t)
-        freq = 200 + oscillation
+        # EXTREME spring oscillation with multiple frequencies
+        # Creates that classic "boiyoiyoing" sound
+        oscillation1 = 250 * math.sin(2 * math.pi * 12 * t) * math.exp(-3 * t)
+        oscillation2 = 100 * math.sin(2 * math.pi * 25 * t) * math.exp(-5 * t)
+        oscillation3 = 50 * math.sin(2 * math.pi * 40 * t) * math.exp(-8 * t)
         
-        # Decay envelope
-        envelope = math.exp(-3 * t)
+        freq = 180 + oscillation1 + oscillation2 + oscillation3
         
-        arr[i] = int(envelope * 12000 * math.sin(2 * math.pi * freq * t))
+        # Bouncy decay with slight "flutter"
+        flutter = 1.0 + 0.05 * math.sin(2 * math.pi * 30 * t)
+        envelope = math.exp(-2.5 * t) * flutter
+        
+        # Add harmonics for more character
+        fundamental = math.sin(2 * math.pi * freq * t)
+        harmonic2 = 0.4 * math.sin(2 * math.pi * freq * 1.5 * t)  # Not quite octave for silly effect
+        harmonic3 = 0.2 * math.sin(2 * math.pi * freq * 2.2 * t)
+        
+        combined = fundamental + harmonic2 + harmonic3
+        arr[i] = int(envelope * 14000 * combined)
+    
+    # Add a little "twang" at the end
+    for i in range(int(sample_rate * 0.4), num_samples):
+        t = i / sample_rate
+        twang_t = t - 0.4
+        twang_freq = 600 * math.exp(-10 * twang_t)
+        twang_envelope = math.exp(-15 * twang_t)
+        arr[i] += int(twang_envelope * 5000 * math.sin(2 * math.pi * twang_freq * t))
     
     stereo_arr = np.column_stack((arr, arr))
     return pygame.sndarray.make_sound(stereo_arr)

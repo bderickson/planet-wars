@@ -16,7 +16,7 @@ from game.config import Config
 from game.scoreboard import Scoreboard
 
 # Setup logging first thing
-setup_logging(level=logging.DEBUG)  # DEBUG for troubleshooting
+setup_logging(level=logging.INFO)  # DEBUG for troubleshooting
 logger = get_logger(__name__)
 
 
