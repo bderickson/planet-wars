@@ -12,6 +12,8 @@ on:
   
   # Run on pushes to main branch only
   # This tests direct commits/merges to main (deployments, hotfixes)
+  # CRITICAL: This ensures coverage is uploaded for squash-merged commits
+  # Without this, Codecov can't find base commit coverage for PR comparisons
   push:
     branches:
       - main
@@ -111,11 +113,15 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
           verbose: true
+          flags: unittests
+          name: codecov-umbrella
         # Uploads coverage report to codecov.io
         # token: GitHub secret containing Codecov upload token
         # Creates badge, PR comments, and detailed coverage reports
         # fail_ci_if_error: false means workflow won't fail if upload fails
         # verbose: true provides detailed logging for troubleshooting
+        # flags: unittests helps organize coverage by test type
+        # name: identifies this upload in Codecov UI
       
       # Step 9: Upload coverage artifact
       - name: Upload coverage artifact
