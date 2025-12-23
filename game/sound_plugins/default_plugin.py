@@ -19,8 +19,11 @@ class DefaultSoundPlugin(BaseSoundPlugin):
         super().__init__()
         # Initialize pygame mixer if not already done
         if not pygame.mixer.get_init():
-            pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
-            logger.info("Audio mixer initialized in DefaultSoundPlugin")
+            try:
+                pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+                logger.info("Audio mixer initialized in DefaultSoundPlugin")
+            except pygame.error as e:
+                logger.warning(f"Audio mixer init failed in DefaultSoundPlugin: {e}")
         
         # Detect platform and choose appropriate format
         self.is_browser = sys.platform == "emscripten"

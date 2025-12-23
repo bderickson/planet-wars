@@ -1,5 +1,10 @@
 # Planet Wars 🌍🚀
 
+[![Tests](https://github.com/bderickson/planet-wars/actions/workflows/tests.yml/badge.svg)](https://github.com/bderickson/planet-wars/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/bderickson/planet-wars/branch/main/graph/badge.svg)](https://codecov.io/gh/bderickson/planet-wars)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/bderickson/planet-wars/pulls)
+
 A browser-based space strategy game built with Python, Pygame, and Pygbag. Conquer the galaxy by capturing planets, building fleets, and outmaneuvering your AI opponent!
 
 ## 🎮 Game Features
