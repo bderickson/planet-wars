@@ -27,6 +27,7 @@ ignore:
   - "*.py"  # Root level scripts (setup.py, etc)
   - "**/__init__.py"  # Usually empty
   - ".github/**/*"
+  - "LICENSE"
 
 comment:
   layout: "reach,diff,flags,files,footer"
