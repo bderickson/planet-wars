@@ -217,6 +217,121 @@ class TestMenu:
         
         # Should not crash
         menu.render(screen)
+    
+    @patch('sys.platform', 'linux')
+    def test_desktop_platform_detection(self, pygame_init, config):
+        """Test that is_browser is False on desktop"""
+        menu = Menu(800, 600, config)
+        assert menu.is_browser == False
+    
+    @patch('sys.platform', 'emscripten')
+    def test_browser_platform_detection(self, pygame_init, config):
+        """Test that is_browser is True in browser"""
+        menu = Menu(800, 600, config)
+        assert menu.is_browser == True
+    
+    @patch('sys.platform', 'emscripten')
+    def test_mobile_text_input_prompt(self, pygame_init, config):
+        """Test mobile text input via JavaScript prompt"""
+        with patch('platform.window', create=True) as mock_window:
+            mock_window.prompt.return_value = "MobileUser"
+            
+            menu = Menu(800, 600, config)
+            
+            # Simulate clicking input box on mobile
+            event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+            menu.handle_text_input(event)
+            
+            # Verify prompt was called
+            mock_window.prompt.assert_called_once()
+            assert menu.input_text == "MobileUser"
+            assert config.player_name == "MobileUser"
+    
+    @patch('sys.platform', 'emscripten')
+    def test_mobile_text_input_cancel(self, pygame_init, config):
+        """Test mobile text input when user cancels"""
+        with patch('platform.window', create=True) as mock_window:
+            # Setup mock - None means user canceled
+            mock_window.prompt.return_value = None
+            
+            menu = Menu(800, 600, config)
+            original_name = menu.input_text
+            
+            # Simulate clicking input box on mobile
+            event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+            menu.handle_text_input(event)
+            
+            # Name should not change when canceled
+            assert menu.input_text == original_name
+    
+    @patch('sys.platform', 'emscripten')
+    def test_mobile_text_input_length_limit(self, pygame_init, config):
+        """Test mobile text input respects 20 character limit"""
+        with patch('platform.window', create=True) as mock_window:
+            # Setup mock with very long name
+            mock_window.prompt.return_value = "A" * 50
+            
+            menu = Menu(800, 600, config)
+            
+            # Simulate clicking input box on mobile
+            event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+            menu.handle_text_input(event)
+            
+            # Should be truncated to 20 characters
+            assert len(menu.input_text) == 20
+            assert menu.input_text == "A" * 20
+    
+    @patch('sys.platform', 'emscripten')
+    def test_mobile_text_input_empty_string(self, pygame_init, config):
+        """Test mobile text input with empty string"""
+        with patch('platform.window', create=True) as mock_window:
+            # Setup mock with empty string
+            mock_window.prompt.return_value = ""
+            
+            menu = Menu(800, 600, config)
+            
+            # Simulate clicking input box on mobile
+            event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+            menu.handle_text_input(event)
+            
+            # Should default to "Player"
+            assert menu.input_text == "Player"
+            assert config.player_name == "Player"
+    
+    @patch('sys.platform', 'emscripten')
+    def test_mobile_text_input_no_platform_window(self, pygame_init, config):
+        """Test mobile text input when platform.window is not available"""
+        menu = Menu(800, 600, config)
+        original_name = menu.input_text
+        
+        # Simulate clicking input box on mobile (should not crash)
+        event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+        menu.handle_text_input(event)
+        
+        # Should not crash, name may or may not change
+        assert menu.input_text is not None
+    
+    @patch('sys.platform', 'linux')
+    def test_desktop_text_input_activates_field(self, pygame_init, config):
+        """Test that clicking input on desktop activates the field"""
+        menu = Menu(800, 600, config)
+        
+        # Simulate clicking input box on desktop
+        event = Mock(type=pygame.MOUSEBUTTONDOWN, pos=menu.input_rect.center)
+        menu.handle_text_input(event)
+        
+        # Should activate input field (not open prompt)
+        assert menu.input_active == True
+    
+    def test_github_link_rendered(self, pygame_init, config, screen):
+        """Test that GitHub link is rendered on menu"""
+        menu = Menu(800, 600, config)
+        
+        # Render and verify it doesn't crash
+        menu.render(screen)
+        
+        # The link should be part of the rendering
+        # (visual inspection needed for actual appearance)
 
 
 class TestGameConfigMenu:
