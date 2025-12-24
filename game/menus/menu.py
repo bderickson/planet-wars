@@ -49,8 +49,10 @@ class Menu(BaseMenu):
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Check if clicked on input box
             if self.input_rect.collidepoint(event.pos):
+                logger.debug(f"Text input box clicked (browser: {self.is_browser})")
                 # On mobile browser, use JavaScript prompt for text input
                 if self.is_browser:
+                    logger.info("Opening mobile text input prompt")
                     self._mobile_text_input()
                 else:
                     was_active = self.input_active
@@ -80,20 +82,46 @@ class Menu(BaseMenu):
     def _mobile_text_input(self):
         """Use JavaScript prompt for mobile text input"""
         try:
+            # Import platform module (only available in Pygbag)
             import platform
-            if hasattr(platform, 'window') and platform.window:
-                # Use JavaScript prompt on mobile
-                logger.debug("Opening mobile text input prompt")
-                new_name = platform.window.prompt("Enter your name:", self.input_text)
-                if new_name is not None:  # User didn't cancel
-                    # Limit length
-                    new_name = new_name[:20] if new_name else "Player"
-                    self.input_text = new_name
-                    self.config.player_name = new_name
-                    self.config.save()
-                    logger.info(f"Player name updated via mobile prompt: {new_name}")
+            
+            logger.debug(f"Platform module loaded, checking for window attribute")
+            
+            # Check if window object exists
+            if not hasattr(platform, 'window'):
+                logger.warning("platform.window not available, cannot open mobile prompt")
+                return
+            
+            if not platform.window:
+                logger.warning("platform.window is None, cannot open mobile prompt")
+                return
+            
+            # Use JavaScript prompt on mobile
+            logger.info(f"Opening mobile text input prompt with current name: '{self.input_text}'")
+            new_name = platform.window.prompt("Enter your name:", self.input_text)
+            
+            logger.debug(f"Prompt returned: {repr(new_name)}")
+            
+            if new_name is not None:  # User didn't cancel
+                # Limit length and handle empty string
+                if not new_name:
+                    new_name = "Player"
+                else:
+                    new_name = new_name[:20]
+                
+                self.input_text = new_name
+                self.config.player_name = new_name
+                self.config.save()
+                logger.info(f"Player name updated via mobile prompt: '{new_name}'")
+            else:
+                logger.debug("User canceled mobile prompt")
+                
+        except ImportError as e:
+            logger.error(f"Failed to import platform module: {e}")
+        except AttributeError as e:
+            logger.error(f"platform.window.prompt not available: {e}")
         except Exception as e:
-            logger.warning(f"Mobile text input failed: {e}")
+            logger.error(f"Mobile text input failed: {e}", exc_info=True)
 
     
     def render(self, screen):
@@ -107,21 +135,39 @@ class Menu(BaseMenu):
         screen.blit(label_text, label_rect)
         
         # Draw input box
-        input_color = (70, 70, 140) if self.input_active else (50, 50, 100)
-        pygame.draw.rect(screen, input_color, self.input_rect)
-        pygame.draw.rect(screen, (255, 255, 255), self.input_rect, 2)
-        
-        # Draw input text
-        input_surface = self.input_font.render(self.input_text, True, (255, 255, 255))
-        screen.blit(input_surface, (self.input_rect.x + 10, self.input_rect.y + 12))
-        
-        # Draw cursor if active
-        if self.input_active and pygame.time.get_ticks() % 1000 < 500:  # Blinking cursor
-            cursor_x = self.input_rect.x + 10 + input_surface.get_width() + 2
-            cursor_y = self.input_rect.y + 10
-            pygame.draw.line(screen, (255, 255, 255), 
-                           (cursor_x, cursor_y), 
-                           (cursor_x, cursor_y + 30), 2)
+        # On mobile/browser, make it look like a button
+        if self.is_browser:
+            # Draw as a button-like box
+            input_color = (60, 60, 120)
+            pygame.draw.rect(screen, input_color, self.input_rect)
+            pygame.draw.rect(screen, (100, 100, 200), self.input_rect, 3)
+            
+            # Draw current name
+            input_surface = self.input_font.render(self.input_text, True, (255, 255, 255))
+            screen.blit(input_surface, (self.input_rect.x + 10, self.input_rect.y + 12))
+            
+            # Draw tap hint in bottom right of box
+            hint_font = pygame.font.Font(None, 20)
+            hint_text = hint_font.render("(tap to edit)", True, (150, 150, 150))
+            hint_rect = hint_text.get_rect(right=self.input_rect.right - 5, centery=self.input_rect.centery)
+            screen.blit(hint_text, hint_rect)
+        else:
+            # Desktop: Draw as editable text field
+            input_color = (70, 70, 140) if self.input_active else (50, 50, 100)
+            pygame.draw.rect(screen, input_color, self.input_rect)
+            pygame.draw.rect(screen, (255, 255, 255), self.input_rect, 2)
+            
+            # Draw input text
+            input_surface = self.input_font.render(self.input_text, True, (255, 255, 255))
+            screen.blit(input_surface, (self.input_rect.x + 10, self.input_rect.y + 12))
+            
+            # Draw cursor if active
+            if self.input_active and pygame.time.get_ticks() % 1000 < 500:  # Blinking cursor
+                cursor_x = self.input_rect.x + 10 + input_surface.get_width() + 2
+                cursor_y = self.input_rect.y + 10
+                pygame.draw.line(screen, (255, 255, 255), 
+                               (cursor_x, cursor_y), 
+                               (cursor_x, cursor_y + 30), 2)
         
         # Draw GitHub link at bottom
         link_font = pygame.font.Font(None, 24)
