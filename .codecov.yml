@@ -1,0 +1,41 @@
+# Codecov Configuration
+# https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        base: auto
+    patch:
+      default:
+        target: 80%
+
+# Only include game code in coverage calculations
+# Excludes: tests, docs, assets, scripts, config files
+ignore:
+  - "tests/**/*"
+  - "docs/**/*"
+  - "assets/**/*"
+  - "build/**/*"
+  - "files/**/*"
+  - "*.py"  # Root level scripts (setup.py, etc)
+  - "**/__init__.py"  # Usually empty
+  - ".github/**/*"
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+
+# Only show changed files in PR comments
+github_checks:
+  annotations: true
+
