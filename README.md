@@ -7,6 +7,12 @@
 
 A browser-based space strategy game built with Python, Pygame, and Pygbag. Conquer the galaxy by capturing planets, building fleets, and outmaneuvering your AI opponent!
 
+## 🌐 Play Online
+
+**[Play Planet Wars →](#)** *(Deploy to Vercel to get your live URL!)*
+
+Or run locally (see [Quick Start](#-quick-start) below)
+
 ## 🎮 Game Features
 
 ### Core Gameplay
@@ -185,6 +191,29 @@ pipenv run python trim_audio.py path/to/file.mp3 7  # Trim to 7 seconds
 # Convert all MP3s to OGG for browser compatibility
 pipenv run python convert_to_ogg.py
 ```
+
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Vercel**:
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Import your `planet-wars` repository
+   - Vercel auto-detects settings from `vercel.json`
+
+3. **Deploy!**
+   - Click "Deploy"
+   - Your game will be live in ~2-3 minutes
+   - Get a URL like: `https://planet-wars-xxx.vercel.app`
+
+**Automatic Updates**: Every push to `main` auto-deploys!
+
+📖 See [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT.md) for detailed instructions.
 
 ## 🎨 Technical Highlights
 
