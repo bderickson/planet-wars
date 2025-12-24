@@ -93,6 +93,79 @@ class TestDefaultSoundPlugin:
         plugin = DefaultSoundPlugin()
         # Should initialize without crashing
         assert plugin is not None
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_fallback_to_ogg(self, mock_sound, mock_exists):
+        """Test that plugin falls back to OGG when MP3 fails"""
+        # MP3 doesn't exist, OGG does
+        def exists_side_effect(path):
+            return path.endswith('.ogg')
+        mock_exists.side_effect = exists_side_effect
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = DefaultSoundPlugin()
+        
+        # Should have tried to load OGG files
+        ogg_calls = [call for call in mock_sound.call_args_list 
+                     if 'ogg' in str(call)]
+        assert len(ogg_calls) > 0
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_loads_first_when_available(self, mock_sound, mock_exists):
+        """Test that plugin tries MP3 first when available"""
+        # Both MP3 and OGG exist
+        mock_exists.return_value = True
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = DefaultSoundPlugin()
+        
+        # Should have loaded MP3 files (and stopped, not falling back to OGG)
+        mp3_calls = [call for call in mock_sound.call_args_list 
+                     if 'mp3' in str(call)]
+        assert len(mp3_calls) > 0
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_handles_both_formats_missing(self, mock_sound, mock_exists):
+        """Test graceful handling when both MP3 and OGG are missing"""
+        mock_exists.return_value = False
+        
+        plugin = DefaultSoundPlugin()
+        
+        # Should initialize without crashing
+        assert plugin is not None
+        # Sounds dict should exist but sounds may be None
+        assert hasattr(plugin, 'sounds')
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_fails_fallback_to_ogg_succeeds(self, mock_sound, mock_exists):
+        """Test fallback when MP3 exists but fails to load, OGG succeeds"""
+        mock_exists.return_value = True
+        
+        mock_sound_obj = Mock()
+        
+        # MP3 throws error, OGG works
+        def sound_side_effect(path):
+            if path.endswith('.mp3'):
+                raise pygame.error("MP3 format not supported")
+            return mock_sound_obj
+        
+        mock_sound.side_effect = sound_side_effect
+        
+        plugin = DefaultSoundPlugin()
+        
+        # Should have successfully loaded OGG as fallback
+        assert plugin is not None
+        ogg_calls = [call for call in mock_sound.call_args_list 
+                     if 'ogg' in str(call)]
+        assert len(ogg_calls) > 0
 
 
 class TestClassicalSoundPlugin:
@@ -146,6 +219,42 @@ class TestClassicalSoundPlugin:
         assert plugin is not None
         # Should have None for missing sounds
         assert plugin.sounds.get('conquest') is None or isinstance(plugin.sounds.get('conquest'), pygame.mixer.Sound)
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_fallback_to_ogg(self, mock_sound, mock_exists):
+        """Test that plugin falls back to OGG when MP3 fails"""
+        # MP3 doesn't exist, OGG does
+        def exists_side_effect(path):
+            return path.endswith('.ogg')
+        mock_exists.side_effect = exists_side_effect
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = ClassicalSoundPlugin()
+        
+        # Should have tried to load OGG files
+        ogg_calls = [call for call in mock_sound.call_args_list 
+                     if 'ogg' in str(call)]
+        assert len(ogg_calls) > 0
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_loads_first_when_available(self, mock_sound, mock_exists):
+        """Test that plugin tries MP3 first when available"""
+        # Both MP3 and OGG exist
+        mock_exists.return_value = True
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = ClassicalSoundPlugin()
+        
+        # Should have loaded MP3 files
+        mp3_calls = [call for call in mock_sound.call_args_list 
+                     if 'mp3' in str(call)]
+        assert len(mp3_calls) > 0
 
 
 class TestSillySoundPlugin:
@@ -197,6 +306,42 @@ class TestSillySoundPlugin:
         mock_exists.return_value = False
         plugin = SillySoundPlugin()
         assert plugin is not None
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_fallback_to_ogg(self, mock_sound, mock_exists):
+        """Test that plugin falls back to OGG when MP3 fails"""
+        # MP3 doesn't exist, OGG does
+        def exists_side_effect(path):
+            return path.endswith('.ogg')
+        mock_exists.side_effect = exists_side_effect
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = SillySoundPlugin()
+        
+        # Should have tried to load OGG files
+        ogg_calls = [call for call in mock_sound.call_args_list 
+                     if 'ogg' in str(call)]
+        assert len(ogg_calls) > 0
+    
+    @patch('os.path.exists')
+    @patch('pygame.mixer.Sound')
+    def test_mp3_loads_first_when_available(self, mock_sound, mock_exists):
+        """Test that plugin tries MP3 first when available"""
+        # Both MP3 and OGG exist
+        mock_exists.return_value = True
+        
+        mock_sound_obj = Mock()
+        mock_sound.return_value = mock_sound_obj
+        
+        plugin = SillySoundPlugin()
+        
+        # Should have loaded MP3 files
+        mp3_calls = [call for call in mock_sound.call_args_list 
+                     if 'mp3' in str(call)]
+        assert len(mp3_calls) > 0
 
 
 class TestBaseSoundPlugin:

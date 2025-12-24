@@ -34,29 +34,43 @@ class ClassicalSoundPlugin(BaseSoundPlugin):
         self._load_sounds()
     
     def _load_sounds(self):
-        """Load classical sounds from trimmed audio files (format based on platform)"""
-        try:
-            # Load Rachmaninoff conquest sound (trimmed to 7 seconds)
-            conquest_path = f'{self.audio_dir}/rachmaninoff-prelude-c-sharp-minor_trimmed_7s{self.audio_ext}'
-            if os.path.exists(conquest_path):
-                self.sounds['conquest'] = pygame.mixer.Sound(conquest_path)
-                logger.debug(f"Loaded sound: {conquest_path}")
-            else:
-                logger.warning(f"Sound file not found: {conquest_path}")
-                self.sounds['conquest'] = None
+        """
+        Load classical sounds from trimmed audio files with fallback support.
+        Tries MP3 first (iOS Safari), falls back to OGG (other browsers).
+        """
+        sound_files = {
+            'conquest': 'rachmaninoff-prelude-c-sharp-minor_trimmed_7s',
+            'explosion': 'beethoven-symphony-no5_trimmed_4s'
+        }
+        
+        for sound_key, filename_base in sound_files.items():
+            sound_loaded = False
             
-            # Load Beethoven's Symphony No. 5 for failed attacks (trimmed to 4 seconds)
-            beethoven_path = f'{self.audio_dir}/beethoven-symphony-no5_trimmed_4s{self.audio_ext}'
-            if os.path.exists(beethoven_path):
-                self.sounds['explosion'] = pygame.mixer.Sound(beethoven_path)
-                logger.debug(f"Loaded sound: {beethoven_path}")
-            else:
-                logger.warning(f"Sound file not found: {beethoven_path}")
-                self.sounds['explosion'] = None
+            # Try MP3 first (works on iOS Safari)
+            mp3_path = f'assets/audio/mp3/{filename_base}.mp3'
+            if os.path.exists(mp3_path):
+                try:
+                    self.sounds[sound_key] = pygame.mixer.Sound(mp3_path)
+                    logger.debug(f"Loaded MP3 sound: {mp3_path}")
+                    sound_loaded = True
+                except Exception as e:
+                    logger.debug(f"MP3 load failed for {mp3_path}: {e}, trying OGG...")
             
-        except Exception as e:
-            logger.error(f"Error loading classical sounds: {e}", exc_info=True)
-            self.sounds = {}
+            # Fallback to OGG if MP3 failed or doesn't exist
+            if not sound_loaded:
+                ogg_path = f'assets/audio/ogg/{filename_base}.ogg'
+                if os.path.exists(ogg_path):
+                    try:
+                        self.sounds[sound_key] = pygame.mixer.Sound(ogg_path)
+                        logger.debug(f"Loaded OGG sound (fallback): {ogg_path}")
+                        sound_loaded = True
+                    except Exception as e:
+                        logger.warning(f"OGG load also failed for {ogg_path}: {e}")
+            
+            # If both formats failed, set to None
+            if not sound_loaded:
+                logger.warning(f"Could not load sound '{sound_key}' ({filename_base}) in any format")
+                self.sounds[sound_key] = None
     
     def attack_succeeded(self):
         """Play Rachmaninoff's Prelude (entire trimmed file)"""

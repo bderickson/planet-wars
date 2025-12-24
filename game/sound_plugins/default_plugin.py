@@ -35,24 +35,39 @@ class DefaultSoundPlugin(BaseSoundPlugin):
         self._load_sounds()
     
     def _load_sounds(self):
-        """Load pre-generated space-themed sounds (format based on platform)"""
-        sound_files = {
-            'conquest': f'{self.audio_dir}/default_conquest{self.audio_ext}',
-            'explosion': f'{self.audio_dir}/default_explosion{self.audio_ext}',
-            'launch': f'{self.audio_dir}/default_launch{self.audio_ext}',
-            'victory': f'{self.audio_dir}/default_victory{self.audio_ext}',
-        }
+        """
+        Load pre-generated space-themed sounds with fallback support.
+        Tries MP3 first (iOS Safari), falls back to OGG (other browsers).
+        """
+        sound_names = ['conquest', 'explosion', 'launch', 'victory']
         
-        for sound_key, filepath in sound_files.items():
-            if os.path.exists(filepath):
+        for sound_key in sound_names:
+            sound_loaded = False
+            
+            # Try MP3 first (works on iOS Safari)
+            mp3_path = f'assets/audio/mp3/default_{sound_key}.mp3'
+            if os.path.exists(mp3_path):
                 try:
-                    self.sounds[sound_key] = pygame.mixer.Sound(filepath)
-                    logger.debug(f"Loaded sound: {filepath}")
+                    self.sounds[sound_key] = pygame.mixer.Sound(mp3_path)
+                    logger.debug(f"Loaded MP3 sound: {mp3_path}")
+                    sound_loaded = True
                 except Exception as e:
-                    logger.warning(f"Could not load {filepath}: {e}")
-                    self.sounds[sound_key] = None
-            else:
-                logger.warning(f"Sound file not found: {filepath}")
+                    logger.debug(f"MP3 load failed for {mp3_path}: {e}, trying OGG...")
+            
+            # Fallback to OGG if MP3 failed or doesn't exist
+            if not sound_loaded:
+                ogg_path = f'assets/audio/ogg/default_{sound_key}.ogg'
+                if os.path.exists(ogg_path):
+                    try:
+                        self.sounds[sound_key] = pygame.mixer.Sound(ogg_path)
+                        logger.debug(f"Loaded OGG sound (fallback): {ogg_path}")
+                        sound_loaded = True
+                    except Exception as e:
+                        logger.warning(f"OGG load also failed for {ogg_path}: {e}")
+            
+            # If both formats failed, set to None
+            if not sound_loaded:
+                logger.warning(f"Could not load sound '{sound_key}' in any format")
                 self.sounds[sound_key] = None
     
     def attack_succeeded(self):
