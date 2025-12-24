@@ -88,7 +88,7 @@ This creates a badge that shows:
 1. GitHub receives your code
 2. Actions workflow triggers automatically
 3. Ubuntu runner spins up (takes ~30 seconds)
-4. Python 3.11 gets installed
+4. Python 3.12 gets installed
 5. Dependencies install (~1-2 minutes)
 6. Unit tests run (~5 seconds)
 7. Integration tests run (~5 seconds)
@@ -138,7 +138,7 @@ Run unit tests
 - Push the files to GitHub
 
 ### "Tests failing on GitHub but pass locally"
-- Check Python version matches (3.11)
+- Check Python version matches (3.12)
 - Check all dependencies in Pipfile
 - Look at the actual error in the logs
 
@@ -156,14 +156,14 @@ Run unit tests
 
 ## Advanced: Multiple Python Versions
 
-Want to test on Python 3.10, 3.11, AND 3.12?
+Want to test on Python 3.11, 3.12, AND 3.13?
 
 Edit `.github/workflows/tests.yml`:
 
 ```yaml
 strategy:
   matrix:
-    python-version: ["3.10", "3.11", "3.12"]
+    python-version: ["3.11", "3.12", "3.13"]
 ```
 
 This will run the entire test suite 3 times (one per version).
@@ -176,7 +176,7 @@ Want to test on Linux, Windows, AND macOS?
 strategy:
   matrix:
     os: [ubuntu-latest, windows-latest, macos-latest]
-    python-version: ["3.11"]
+    python-version: ["3.12"]
 runs-on: ${{ matrix.os }}
 ```
 

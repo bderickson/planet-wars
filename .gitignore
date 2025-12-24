@@ -27,7 +27,7 @@ ENV/
 .venv
 
 # Pipenv
-Pipfile.lock
+# Note: Pipfile.lock is NOT ignored - it's committed for reproducible deployments
 
 # IDE
 .vscode/

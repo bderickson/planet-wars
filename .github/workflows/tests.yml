@@ -34,10 +34,10 @@ jobs:
     # GitHub provides: ubuntu-latest, windows-latest, macos-latest
     runs-on: ubuntu-latest
     
-    # Strategy: Test on multiple Python versions (optional, currently just 3.11)
+    # Strategy: Test on multiple Python versions (optional, currently just 3.12)
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
     
     # Steps: Individual tasks that run sequentially
     steps:
