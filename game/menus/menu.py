@@ -17,6 +17,7 @@ class Menu(BaseMenu):
         
         self.config = config
         self.is_browser = sys.platform == "emscripten"
+        self.is_mobile = self._detect_mobile()
         
         # Font for input label and text
         self.input_font = pygame.font.Font(None, 36)
@@ -44,14 +45,41 @@ class Menu(BaseMenu):
             MenuItem("Quit", button_x, start_y + button_spacing * 2, button_width, button_height, "quit")
         ]
     
+    def _detect_mobile(self):
+        """Detect if running on a mobile browser"""
+        if not self.is_browser:
+            return False
+        
+        try:
+            import platform
+            if hasattr(platform, 'window') and platform.window:
+                # Check if it's a touch device using JavaScript
+                # This will be true for mobile/tablet browsers
+                js_code = """
+                (function() {
+                    return ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0) || 
+                           (navigator.msMaxTouchPoints > 0);
+                })()
+                """
+                is_touch = platform.window.eval(js_code)
+                logger.info(f"Mobile detection: is_touch={is_touch}")
+                return bool(is_touch)
+        except Exception as e:
+            logger.warning(f"Mobile detection failed: {e}")
+        
+        # Default to False (desktop browser)
+        return False
+    
     def handle_text_input(self, event):
         """Handle text input for player name"""
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Check if clicked on input box
             if self.input_rect.collidepoint(event.pos):
-                logger.debug(f"Text input box clicked (browser: {self.is_browser})")
+                logger.debug(f"Text input box clicked (browser: {self.is_browser}, mobile: {self.is_mobile})")
                 # On mobile browser, use JavaScript prompt for text input
-                if self.is_browser:
+                # On desktop browser, use regular keyboard input
+                if self.is_mobile:
                     logger.info("Opening mobile text input prompt")
                     self._mobile_text_input()
                 else:
@@ -60,7 +88,7 @@ class Menu(BaseMenu):
                     if not was_active:
                         logger.debug("Player name input activated")
         
-        # Desktop keyboard input
+        # Desktop and desktop browser keyboard input
         if event.type == pygame.KEYDOWN and self.input_active:
             if event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
@@ -135,8 +163,8 @@ class Menu(BaseMenu):
         screen.blit(label_text, label_rect)
         
         # Draw input box
-        # On mobile/browser, make it look like a button
-        if self.is_browser:
+        # On mobile browser, make it look like a button
+        if self.is_mobile:
             # Draw as a button-like box
             input_color = (60, 60, 120)
             pygame.draw.rect(screen, input_color, self.input_rect)
@@ -152,7 +180,7 @@ class Menu(BaseMenu):
             hint_rect = hint_text.get_rect(right=self.input_rect.right - 5, centery=self.input_rect.centery)
             screen.blit(hint_text, hint_rect)
         else:
-            # Desktop: Draw as editable text field
+            # Desktop (both native and browser): Draw as editable text field
             input_color = (70, 70, 140) if self.input_active else (50, 50, 100)
             pygame.draw.rect(screen, input_color, self.input_rect)
             pygame.draw.rect(screen, (255, 255, 255), self.input_rect, 2)
