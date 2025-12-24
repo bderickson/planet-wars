@@ -5,7 +5,7 @@ This guide walks you through deploying Planet Wars to run in the browser using P
 ## 📋 Prerequisites
 
 - Git and GitHub account
-- Python 3.11 with pipenv
+- Python 3.12 with pipenv
 - Your game already has async support (✅ done!)
 
 ## 🚀 Quick Start
