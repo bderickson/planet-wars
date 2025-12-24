@@ -183,26 +183,33 @@ class TestMenu:
         assert menu.input_active == True
     
     def test_player_name_input_text(self, pygame_init, config):
-        """Test typing in player name"""
+        """Test typing in player name auto-saves"""
         menu = Menu(800, 600, config)
         menu.input_active = True
+        initial_name = config.player_name
         
         # Type character
         event = Mock(type=pygame.KEYDOWN, key=ord('A'), unicode='A')
         menu.handle_text_input(event)
         
         assert 'A' in menu.input_text
+        # Verify it auto-saved
+        assert config.player_name == menu.input_text
+        assert config.player_name != initial_name
     
     def test_player_name_input_backspace(self, pygame_init, config):
-        """Test backspace in player name"""
+        """Test backspace in player name auto-saves"""
         menu = Menu(800, 600, config)
         menu.input_active = True
         menu.input_text = "ABC"
+        config.player_name = "ABC"
         
         event = Mock(type=pygame.KEYDOWN, key=pygame.K_BACKSPACE, unicode='')
         menu.handle_text_input(event)
         
         assert menu.input_text == "AB"
+        # Verify it auto-saved
+        assert config.player_name == "AB"
     
     def test_render(self, pygame_init, config, screen):
         """Test rendering menu"""

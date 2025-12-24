@@ -3,13 +3,14 @@
 [![Tests](https://github.com/bderickson/planet-wars/actions/workflows/tests.yml/badge.svg)](https://github.com/bderickson/planet-wars/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/bderickson/planet-wars/branch/main/graph/badge.svg)](https://codecov.io/gh/bderickson/planet-wars)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/bderickson/planet-wars/pulls)
 
 A browser-based space strategy game built with Python, Pygame, and Pygbag. Conquer the galaxy by capturing planets, building fleets, and outmaneuvering your AI opponent!
 
 ## 🌐 Play Online
 
-**[Play Planet Wars →](#)** *(Deploy to Vercel to get your live URL!)*
+**[Play Planet Wars →](https://planet-wars.derickson.me)**
 
 Or run locally (see [Quick Start](#-quick-start) below)
 
@@ -34,9 +35,11 @@ Or run locally (see [Quick Start](#-quick-start) below)
   - **Hard**: Fast decisions, 70% aggression, uses abilities strategically, prioritizes high-production planets
 
 ### Map Sizes
-- **Small**: 7 planets - Quick games (~5-10 minutes)
-- **Medium**: 13 planets - Balanced gameplay (~10-20 minutes)
-- **Large**: 19 planets - Epic battles (~20-30 minutes)
+- **Small**: 7 planets - Quick skirmishes
+- **Medium**: 13 planets - Balanced gameplay
+- **Large**: 19 planets - Epic battles
+
+**Games typically take between 1 and 5 minutes.**
 
 ### Audio System
 Three distinct sound packs to choose from:
@@ -80,8 +83,6 @@ pipenv run pygbag main.py
 # The game will run in your browser
 ```
 
-For deployment to GitHub Pages, itch.io, or other hosting, see [docs/BROWSER_DEPLOYMENT.md](docs/BROWSER_DEPLOYMENT.md)
-
 ## 🎯 How to Play
 
 1. **Start a New Game**: Enter your name and configure your game settings
@@ -95,6 +96,37 @@ For deployment to GitHub Pages, itch.io, or other hosting, see [docs/BROWSER_DEP
    - Shield your high-production planets when under attack
    - Use Production Surge when you control multiple large planets
    - Recall can save your fleets from a losing battle
+
+### 🏆 Scoring System
+
+Your score is based on **tactical performance** and **speed**:
+
+**Final Score = Tactical Score + Time Bonus**
+
+#### Tactical Penalties
+Start with 100 points, lose points for mistakes:
+- **Lost Battle** (attack repelled): -5 points
+- **Lost Planet** (conquered by enemy): -10 points
+- **Minimum Tactical Score**: 0
+
+#### Time Bonuses
+Fast victories are rewarded:
+- **Under 60 seconds**: +50 bonus (Perfect speedrun! ⚡)
+- **Under 2 minutes**: +30 bonus (Very fast 🚀)
+- **Under 3 minutes**: +15 bonus (Fast ⏱️)
+- **Under 5 minutes**: +5 bonus (Moderate 🐢)
+- **5+ minutes**: No time bonus
+
+#### Score Range
+- **Maximum Score**: 150 (100 tactical + 50 time bonus)
+- **Perfect Game**: 150 points (no losses, under 60 seconds)
+- **Defeat**: 0 points (always)
+
+**Strategy Tips:**
+- Speed matters! Fast victories can offset tactical mistakes
+- Each lost battle costs 5 points, lost planets cost 10
+- Use Shield ability to prevent costly planet losses
+- Balance risk vs speed - 60s, 120s, 180s, and 300s are critical time breakpoints
 
 ## 📁 Project Structure
 
@@ -192,55 +224,9 @@ pipenv run python trim_audio.py path/to/file.mp3 7  # Trim to 7 seconds
 pipenv run python convert_to_ogg.py
 ```
 
-## 🚀 Deployment
-
-### Deploy to Vercel
-
-1. **Push to GitHub**:
-   ```bash
-   git push origin main
-   ```
-
-2. **Connect to Vercel**:
-   - Go to [vercel.com/new](https://vercel.com/new)
-   - Import your `planet-wars` repository
-   - Vercel auto-detects settings from `vercel.json`
-
-3. **Deploy!**
-   - Click "Deploy"
-   - Your game will be live in ~2-3 minutes
-   - Get a URL like: `https://planet-wars-xxx.vercel.app`
-
-**Automatic Updates**: Every push to `main` auto-deploys!
-
-📖 See [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT.md) for detailed instructions.
-
-## 🎨 Technical Highlights
-
-### Cross-Platform Compatibility
-- **Desktop**: Native Pygame with file-based persistence and MP3 audio
-- **Browser**: Pygbag/WebAssembly with localStorage and OGG audio
-- **Automatic Detection**: Platform-aware audio loading and data storage
-
-### Architecture Patterns
-- **Modular Design**: Separate concerns (logic, rendering, input, AI, sound)
-- **Plugin System**: Extensible sound and AI systems
-- **Abstract Base Classes**: Clean interfaces for AI and sound plugins
-- **Factory Pattern**: Dynamic creation of AI and sound instances
-- **Event-Driven**: Pygame event loop with state management
-
-### Key Features
-- **Vertical Mirroring**: Fair map generation with balanced starting positions
-- **Smart AI**: Strategic targeting, ability usage, economic prioritization
-- **Comprehensive Logging**: Cross-platform debug output (console + browser)
-- **Persistent Data**: Scoreboard and config saved locally or in browser localStorage
-- **Procedural Audio**: Numpy-generated sound effects for space themes
-
 ## 📚 Documentation
 
-- [Browser Deployment Guide](docs/BROWSER_DEPLOYMENT.md) - How to deploy to web
 - [Sound System](docs/SOUND_SYSTEM.md) - Audio plugin architecture
-- [Scoreboard System](docs/SCOREBOARD_SYSTEM.md) - High score tracking
 
 ## 🎓 Resources
 
@@ -248,12 +234,9 @@ pipenv run python convert_to_ogg.py
 - [Pygbag Documentation](https://pygame-web.github.io/)
 - [Pygame Tutorial](https://www.pygame.org/wiki/tutorials)
 
-## 📝 License
-
-This is a personal project created for learning and fun. Feel free to use it as inspiration for your own projects!
-
 ## 🙏 Acknowledgments
 
+- Lucas - His ideas, help, and enthusiasm helped make this game what it is
 - Built with assistance from Cursor AI
 - Audio processing using pydub and pygame
 - Classical music: Rachmaninoff's Prelude in C-sharp minor, Beethoven's Symphony No. 5
